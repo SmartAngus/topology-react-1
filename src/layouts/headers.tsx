@@ -70,7 +70,7 @@ class Headers extends React.Component<{ canvasData: any }> {
 
   render(): React.ReactNode {
     const { data } = this.props.canvasData;
-    const scale = Math.floor(data.scale);
+    const scale = Math.floor(data.scale * 100);
     return (
       <div>
         <Menu

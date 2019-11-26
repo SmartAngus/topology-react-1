@@ -12,7 +12,9 @@ export interface CanvasPropsProps {
   data: {
     node?: Node,
     line?: Line,
-    multi?: boolean
+    multi?: boolean,
+    nodes?: Node[],
+    locked?: boolean
   };
   onValuesChange: (props: any, changedValues: any, allValues: any) => void;
 }
@@ -30,6 +32,8 @@ class CanvasProps extends Component<CanvasPropsProps> {
         node: this.props.data.node,
         line: this.props.data.line,
         multi: this.props.data.multi,
+        nodes: this.props.data.nodes,
+        locked: this.props.data.locked,
       });
     }
   }

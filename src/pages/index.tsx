@@ -86,6 +86,7 @@ import {
 
 import CanvasProps from './components/canvasProps';
 import { IEvent } from '@/models/event';
+import CanvasContextMenu from './components/canvasContextMenu';
 
 class Index extends React.Component<{ event: IEvent }> {
   canvas: Topology;
@@ -101,6 +102,16 @@ class Index extends React.Component<{ event: IEvent }> {
       node: null,
       line: null,
       multi: false,
+      nodes: null,
+      locked: false
+    },
+    contextmenu: {
+      position: 'fixed',
+      zIndex: '10',
+      display: 'none',
+      left: '',
+      top: '',
+      bottom: ''
     }
   };
 
@@ -108,6 +119,17 @@ class Index extends React.Component<{ event: IEvent }> {
     this.canvasRegister();
     this.canvasOptions.on = this.onMessage;
     this.canvas = new Topology('topology-canvas', this.canvasOptions);
+
+    document.onclick = event => {
+      this.setState({
+        contextmenu: {
+          display: 'none',
+          left: '',
+          top: '',
+          bottom: ''
+        }
+      });
+    }
   }
 
   canvasRegister() {
@@ -160,6 +182,8 @@ class Index extends React.Component<{ event: IEvent }> {
             node: data,
             line: null,
             multi: false,
+            nodes: null,
+            locked: data.locked
           }
         });
         break;
@@ -170,6 +194,8 @@ class Index extends React.Component<{ event: IEvent }> {
             node: null,
             line: data,
             multi: false,
+            nodes: null,
+            locked: data.locked
           }
         });
         break;
@@ -178,7 +204,9 @@ class Index extends React.Component<{ event: IEvent }> {
           selected: {
             node: null,
             line: null,
-            multi: true
+            multi: true,
+            nodes: data.nodes.length > 1 ? data.nodes : null,
+            locked: this.getLocked(data)
           }
         });
         break;
@@ -187,7 +215,9 @@ class Index extends React.Component<{ event: IEvent }> {
           selected: {
             node: null,
             line: null,
-            multi: false
+            multi: false,
+            nodes: null,
+            locked: false
           }
         });
         break;
@@ -202,6 +232,8 @@ class Index extends React.Component<{ event: IEvent }> {
               node: null,
               line: null,
               multi: true,
+              nodes: data,
+              locked: this.getLocked({ nodes: data })
             }
           });
         } else {
@@ -209,7 +241,9 @@ class Index extends React.Component<{ event: IEvent }> {
             selected: {
               node: data[0],
               line: null,
-              multi: false
+              multi: false,
+              nodes: null,
+              locked: false
             }
           });
         }
@@ -261,6 +295,36 @@ class Index extends React.Component<{ event: IEvent }> {
       if (this['handle_' + this.props.event.event]) {
         this['handle_' + this.props.event.event](this.props.event.data);
       }
+    }
+  }
+
+  hanleContextMenu = (event: any) => {
+    event.preventDefault()
+    event.stopPropagation()
+
+    if (event.clientY + 360 < document.body.clientHeight) {
+      this.setState({
+        contextmenu: {
+          position: 'fixed',
+          zIndex: '10',
+          display: 'block',
+          left: event.clientX + 'px',
+          top: event.clientY + 'px',
+          bottom: ''
+        }
+      });
+
+    } else {
+      this.setState({
+        contextmenu: {
+          position: 'fixed',
+          zIndex: '10',
+          display: 'block',
+          left: event.clientX + 'px',
+          top: '',
+          bottom: document.body.clientHeight - event.clientY + 'px'
+        }
+      });
     }
   }
 
@@ -395,6 +459,28 @@ class Index extends React.Component<{ event: IEvent }> {
     });
   }
 
+  getLocked(data: any) {
+    let locked = true
+    if (data.nodes && data.nodes.length) {
+      for (const item of data.nodes) {
+        if (!item.locked) {
+          locked = false
+          break
+        }
+      }
+    }
+    if (locked && data.lines) {
+      for (const item of data.lines) {
+        if (!item.locked) {
+          locked = false
+          break
+        }
+      }
+    }
+
+    return locked
+  }
+
   render() {
     return (
       <div className={styles.page}>
@@ -420,9 +506,13 @@ class Index extends React.Component<{ event: IEvent }> {
             })
           }
         </div>
-        <div id="topology-canvas" className={styles.full} />
+        <div id="topology-canvas" className={styles.full} onContextMenu={this.hanleContextMenu} />
         <div className={styles.props}>
           <CanvasProps data={this.state.selected} onValuesChange={this.handlePropsChange} />
+        </div>
+
+        <div style={this.state.contextmenu} >
+          <CanvasContextMenu data={this.state.selected} canvas={this.canvas} />
         </div>
       </div>
     );
