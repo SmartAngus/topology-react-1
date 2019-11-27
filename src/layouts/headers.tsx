@@ -47,6 +47,20 @@ class Headers extends React.Component<{ canvas: any, user: any }> {
     }
 
     switch (key) {
+      case 'new':
+        router.push('/workspace')
+        break
+      case 'open':
+        router.push('/workspace')
+        setTimeout(() => {
+          this.props.dispatch({
+            type: 'event/emit',
+            payload: {
+              event: key
+            }
+          });
+        }, 100)
+        break
       case 'about':
         this.setState({
           about: true,
