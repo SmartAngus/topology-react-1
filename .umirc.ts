@@ -36,6 +36,16 @@ const config: IConfig = {
       },
     ],
   ],
+  proxy: {
+    '/api/': {
+      target: 'http://topology.le5le.com',
+      changeOrigin: true
+    },
+    '/image/': {
+      target: 'http://topology.le5le.com',
+      changeOrigin: true
+    }
+  }
 };
 
 export default config;

@@ -1,8 +1,9 @@
-import { Menu } from 'antd';
+import { Menu, Avatar } from 'antd';
 import { ClickParam } from 'antd/es/menu';
 import React from 'react';
 import { connect } from 'dva';
 import router from 'umi/router';
+import { Cookie } from 'le5le-store';
 
 import styles from './headers.less';
 import About from './about';
@@ -11,7 +12,7 @@ import Joinin from './joinin';
 
 const { SubMenu } = Menu;
 
-class Headers extends React.Component<{ canvasData: any }> {
+class Headers extends React.Component<{ canvas: any, user: any }> {
   state = {
     about: false,
     license: false,
@@ -20,8 +21,18 @@ class Headers extends React.Component<{ canvasData: any }> {
       curve: '曲线',
       polyline: '折线',
       line: '直线'
-    }
+    },
+    user: null
   };
+
+  componentDidMount() {
+    const { dispatch } = this.props as any;
+    if (Cookie.get('token')) {
+      dispatch({
+        type: 'user/fetch',
+      });
+    }
+  }
 
   onMenuClick = (event: ClickParam) => {
     const { key } = event;
@@ -69,8 +80,14 @@ class Headers extends React.Component<{ canvasData: any }> {
   }
 
   render(): React.ReactNode {
-    const { data } = this.props.canvasData;
+    const { data } = this.props.canvas;
+    const { current } = this.props.user;
+
     const scale = Math.floor(data.scale * 100);
+    const accountUrl = `https://account.le5le.com?cb=${encodeURIComponent(
+      location.href
+    )}`
+
     return (
       <div>
         <Menu
@@ -136,6 +153,29 @@ class Headers extends React.Component<{ canvasData: any }> {
             <Menu.Item className={styles.subTtem} key="polyline">折线</Menu.Item>
             <Menu.Item className={styles.subTtem} key="line">直线</Menu.Item>
           </SubMenu>
+          {current ? (
+            <SubMenu title={
+              <span>
+                <Avatar style={{ backgroundColor: '#f56a00', verticalAlign: 'middle' }} size="small">
+                  {current.username[0]}
+                </Avatar>
+                <span className="ml5">{current.username}</span>
+              </span>
+            } className={styles.right}>
+              <Menu.Item className={styles.subTtem}>
+                <a href={accountUrl} target="_blank">
+                  退出
+              </a>
+              </Menu.Item>
+            </SubMenu>
+          ) : (
+              <Menu.Item className={styles.right}>
+                <a href={accountUrl} target="_blank">
+                  登录/注册
+              </a>
+              </Menu.Item>
+            )
+          }
         </Menu>
 
         {this.state.about ? (
@@ -151,4 +191,5 @@ class Headers extends React.Component<{ canvasData: any }> {
     );
   }
 }
-export default connect((state: any) => ({ canvasData: state.canvas }))(Headers);
+export default connect((state: any) => ({ canvas: state.canvas, user: state.user }))(Headers);
+
