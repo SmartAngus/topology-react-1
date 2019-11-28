@@ -21,8 +21,7 @@ class Headers extends React.Component<{ canvas: any, user: any }> {
       curve: '曲线',
       polyline: '折线',
       line: '直线'
-    },
-    user: null
+    }
   };
 
   componentDidMount() {
