@@ -17,7 +17,7 @@
     "react-dom": "^16.8.6",
     "topology-activity-diagram": "^0.0.4",
     "topology-class-diagram": "^0.0.1",
-    "topology-core": "^0.0.19",
+    "topology-core": "^0.2.17",
     "topology-flow-diagram": "^0.0.1",
     "topology-sequence-diagram": "^0.0.4",
     "umi-request": "^1.2.11"
